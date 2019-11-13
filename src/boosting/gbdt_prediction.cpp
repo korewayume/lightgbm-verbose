@@ -17,7 +17,10 @@ void GBDT::PredictRaw(const double* features, double* output, const PredictionEa
   for (int i = 0; i < num_iteration_for_pred_; ++i) {
     // predict all the trees for one iteration
     for (int k = 0; k < num_tree_per_iteration_; ++k) {
-      output[k] += models_[i * num_tree_per_iteration_ + k]->Predict(features);
+      auto value = models_[i * num_tree_per_iteration_ + k]->Predict(features);
+      printf("[cpp debug] GBDT::PredictRaw value: %f\n", value);
+      output[k] += value;
+      printf("[cpp debug] GBDT::PredictRaw output[%d]: %f\n", k, output[k]);
     }
     // check early stopping
     ++early_stop_round_counter;
@@ -52,6 +55,9 @@ void GBDT::PredictRawByMap(const std::unordered_map<int, double>& features, doub
 
 void GBDT::Predict(const double* features, double* output, const PredictionEarlyStopInstance* early_stop) const {
   PredictRaw(features, output, early_stop);
+  printf("[cpp debug] GBDT::Predict %.8f\n", *output);
+  double value = 1.0f / (1.0f + std::exp(-1 * (*output)));
+  printf("[cpp debug] GBDT::Predict after sigmoid %.8f\n", value);
   if (average_output_) {
     for (int k = 0; k < num_tree_per_iteration_; ++k) {
       output[k] /= num_iteration_for_pred_;

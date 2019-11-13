@@ -106,6 +106,9 @@ class Predictor {
             auto buf = CopyToPredictMap(features);
             boosting_->PredictByMap(buf, output, &early_stop_);
           } else {
+            for (auto feature:features) {
+              printf("[cpp debug] index: %d, feature: %f\n", feature.first, feature.second);
+            }
             CopyToPredictBuffer(predict_buf_[tid].data(), features);
             boosting_->Predict(predict_buf_[tid].data(), output, &early_stop_);
             ClearPredictBuffer(predict_buf_[tid].data(), predict_buf_[tid].size(), features);
